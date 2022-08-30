@@ -6,22 +6,19 @@ Python   : 3.10.6
 Selenium : 2.33.0
 '''
 
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-import selenium
+from selenium import webdriver  
 from time import sleep
 import pickle
 
 """GLOBALS"""
-CHROMEDRIVER_PATH = '/usr/local/bin/chromedriver'      # Path of the chrome-drive 
-driver = webdriver.Chrome(CHROMEDRIVER_PATH)
+chrome_driver_path = '/usr/local/bin/chromedriver'      # Path of the chrome-driver
+driver = webdriver.Chrome(chrome_driver_path) 
 
 def getAdvisoryInfo(selector) :
     advisoryInfos = []
 
     #go into each advisory page
-    advisoryPage = driver.find_element(By.CSS_SELECTOR, selector); 
-    # advisoryPage = driver.find_element_by_css_selector(selector)
+    advisoryPage = driver.find_element_by_css_selector(selector)
     advisoryPage.click()
 
     #wait loading...
@@ -33,18 +30,18 @@ def getAdvisoryInfo(selector) :
 
 def crawl() :
     #crawl GHSA code
-    ghsa = driver.find_element(By.CSS_SELECTOR,'div.col-12.col-md-3.float-left.pt-3.pt-md-0 > div:nth-child(4) > div').text
+    ghsa = driver.find_element_by_css_selector('div.col-12.col-md-3.float-left.pt-3.pt-md-0 > div:nth-child(4) > div').text
     
     #crawl package info
-    packages = driver.find_elements(By.CSS_SELECTOR,'div.Box-body span.f4.color-fg-default.text-bold')
+    packages = driver.find_elements_by_css_selector('div.Box-body span.f4.color-fg-default.text-bold')
     package = [info.text for info in packages]
 
     # crawl affected Version info
-    affectedVers = driver.find_elements(By.XPATH,'//*[@id="js-pjax-container"]/div/div[2]/div[1]/div[1]/div/div/div[2]/div')
+    affectedVers = driver.find_elements_by_xpath('//*[@id="js-pjax-container"]/div/div[2]/div[1]/div[1]/div/div/div[2]/div')
     affectedVer = [info.text for info in affectedVers]
 
     # crawl patched Version info
-    patchedVers = driver.find_elements(By.XPATH,'//*[@id="js-pjax-container"]/div/div[2]/div[1]/div[1]/div/div/div[3]/div')
+    patchedVers = driver.find_elements_by_xpath('//*[@id="js-pjax-container"]/div/div[2]/div[1]/div[1]/div/div/div[3]/div')
     patchedVer = [info.text for info in patchedVers]
     
     advisoryInfo = [ghsa, package, affectedVer, patchedVer]
@@ -59,8 +56,7 @@ def main() :
 
         #get TotalPage count
         max = 25
-        total = int(driver.find_element(By.CSS_SELECTOR,'div.Box-header.d-flex > h2 > span').text.replace(",",""))
-        # total = int(driver.find_element_by_css_selector('div.Box-header.d-flex > h2 > span').text.replace(",",""))
+        total = int(driver.find_element_by_css_selector('div.Box-header.d-flex > h2 > span').text.replace(",",""))
         page, lastpage = divmod(total, max)
         page += 1
 
@@ -77,7 +73,7 @@ def main() :
                     for key, value in advisoryDB.items() :
                         dump = str(key)+" : "+str(value)
                         f.write(dump+"\n")
-
+                        
             # gotoNextpage()  
             driver.get(f'https://github.com/advisories?page={i+1}')
     finally :
@@ -100,6 +96,5 @@ if __name__ == "__main__":
     2. 각 advisory페이지에 진입 -> 크롤링 -> 빠져나옴 을해서 부하가 많이 걸리는듯함.
     3. 페이지 로딩때문에 sleep() 사용 중. 스레드로 더 빠르게할수 있을까?
     3. selenium 4.0 버전 호환가능하도록 재작성필요
-        * '22.08.30 해결: 4.0.0 버전 & 그 미만 버전으로 분화
  
 #######################################################################################################   '''
