@@ -21,6 +21,7 @@ def getAdvisoryInfo(selector) :
     advisoryPage = driver.find_element_by_css_selector(selector)
     advisoryPage.click()
 
+    #wait loading...
     sleep(1.5)
     advisoryInfos = crawl()
     driver.back()
@@ -71,7 +72,6 @@ def main() :
                         dump = str(key)+" : "+str(value)
                         f.write(dump+"\n")
             # gotoNextpage()  
-            print("=======PAGE: "+str(i)+"========")
             driver.get(f'https://github.com/advisories?page={i+1}')
 
 
@@ -90,6 +90,7 @@ if __name__ == "__main__":
 개선하면 좋을 문제들
     1. patchedVers의 CSS 앨리먼트가 affectedVers와 중첩(포함관계)되서 patchedVers에 affectedVers가 들어가는 문제.
         - 현재로는 patchedVers 크롤링한뒤 홀수 번째만 필터링하여 사용중
+            * '22.08.30 해결: CSS Selector -> XPath 으로 변경
     2. 각 advisory페이지에 진입 -> 크롤링 -> 빠져나옴 을해서 부하가 많이 걸리는듯함.
     3. 페이지 로딩때문에 sleep() 사용 중. 스레드로 더 빠르게할수 있을까?
     3. selenium 4.0 버전 호환가능하도록 재작성필요
