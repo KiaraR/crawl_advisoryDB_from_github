@@ -18,35 +18,51 @@ driver = webdriver.Chrome(CHROMEDRIVER_PATH)
 
 def getAdvisoryInfo(selector) :
     advisoryInfos = []
-
-    #go into each advisory page
-    advisoryPage = driver.find_element(By.CSS_SELECTOR, selector); 
-    # advisoryPage = driver.find_element_by_css_selector(selector)
-    advisoryPage.click()
+    
+    try :
+        #go into each advisory page
+        advisoryPage = driver.find_element(By.CSS_SELECTOR, selector); 
+        # advisoryPage = driver.find_element_by_css_selector(selector)
+        advisoryPage.click()
+    except Exception :
+        sleep(1)
+        print("게시물들어가다가 에러발생")
+        getAdvisoryInfo(selector)
 
     #wait loading...
     sleep(1.5)
-    advisoryInfos = crawl()
+    try: 
+        advisoryInfos = crawl()
+    except Exception :
+        sleep(1)
+        print("여기선 에러 안나겠지만 크롤링불러올때")
+        advisoryInfos = crawl() 
     driver.back()
 
     return advisoryInfos
 
-def crawl() :
-    #crawl GHSA code
-    ghsa = driver.find_element(By.CSS_SELECTOR,'div.col-12.col-md-3.float-left.pt-3.pt-md-0 > div:nth-child(4) > div').text
-    
-    #crawl package info
-    packages = driver.find_elements(By.CSS_SELECTOR,'div.Box-body span.f4.color-fg-default.text-bold')
-    package = [info.text for info in packages]
+def crawl() : 
+    try : 
+        #crawl GHSA code
+        ghsa = driver.find_element(By.CSS_SELECTOR,'div.col-12.col-md-3.float-left.pt-3.pt-md-0 > div:nth-child(4) > div').text
+        
+        #crawl package info
+        packages = driver.find_elements(By.CSS_SELECTOR,'div.Box-body span.f4.color-fg-default.text-bold')
+        package = [info.text for info in packages]
 
-    # crawl affected Version info
-    affectedVers = driver.find_elements(By.XPATH,'//*[@id="js-pjax-container"]/div/div[2]/div[1]/div[1]/div/div/div[2]/div')
-    affectedVer = [info.text for info in affectedVers]
+        # crawl affected Version info
+        affectedVers = driver.find_elements(By.XPATH,'//*[@id="js-pjax-container"]/div/div[2]/div[1]/div[1]/div/div/div[2]/div')
+        affectedVer = [info.text for info in affectedVers]
 
-    # crawl patched Version info
-    patchedVers = driver.find_elements(By.XPATH,'//*[@id="js-pjax-container"]/div/div[2]/div[1]/div[1]/div/div/div[3]/div')
-    patchedVer = [info.text for info in patchedVers]
-    
+        # crawl patched Version info
+        patchedVers = driver.find_elements(By.XPATH,'//*[@id="js-pjax-container"]/div/div[2]/div[1]/div[1]/div/div/div[3]/div')
+        patchedVer = [info.text for info in patchedVers]
+    except Exception :
+        print("크롤링하다가 에러 발생")
+        sleep(1)
+        crawl()
+
+
     advisoryInfo = [ghsa, package, affectedVer, patchedVer]
     return advisoryInfo
 
@@ -80,6 +96,9 @@ def main() :
 
             # gotoNextpage()  
             driver.get(f'https://github.com/advisories?page={i+1}')
+    except Exception :
+        print("메인에서 에러발생")
+
     finally :
         #save as dictionary dataset
         with open("/Users/kiara/Desktop/Advisory_DB.txt", 'wb') as f:
