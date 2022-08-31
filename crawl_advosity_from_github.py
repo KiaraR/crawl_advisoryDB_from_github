@@ -40,7 +40,7 @@ def getAdvisoryInfo(selector) :
     driver.back()
 
     #save in file
-    with open('/Users/kiara/Desktop/AdvisoryDUMP.txt','a') as f :
+    with open('./AdvisoryDUMP.txt','a') as f :
             dump = str(advisoryInfos[0])+":"+str(advisoryInfos[1])+":"+str(advisoryInfos[2])+":"+str(advisoryInfos[3])
             print(dump)
             f.write(dump+"\n")
@@ -62,9 +62,6 @@ def crawl() :
     # crawl patched Version info
     patchedVers = driver.find_elements(By.XPATH,'//*[@id="js-pjax-container"]/div/div[2]/div[1]/div[1]/div/div/div[3]/div')
     patchedVer = [info.text for info in patchedVers]
-
-    crawl()
-
 
     advisoryInfo = [ghsa, package, affectedVer, patchedVer]
     return advisoryInfo
