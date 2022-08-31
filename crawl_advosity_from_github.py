@@ -26,7 +26,7 @@ def getAdvisoryInfo(selector) :
         advisoryPage.click()
     except Exception :
         sleep(1)
-        print("게시물들어가다가 에러발생")
+        print("[error]: go into Advisory Page")
         getAdvisoryInfo(selector)
 
     #wait loading...
@@ -35,32 +35,35 @@ def getAdvisoryInfo(selector) :
         advisoryInfos = crawl()
     except Exception :
         sleep(1)
-        print("여기선 에러 안나겠지만 크롤링불러올때")
+        print("[error]: do Crawl")
         advisoryInfos = crawl() 
     driver.back()
+
+    #save in file
+    with open('/Users/kiara/Desktop/AdvisoryDUMP.txt','a') as f :
+            dump = str(advisoryInfos[0])+":"+str(advisoryInfos[1])+":"+str(advisoryInfos[2])+":"+str(advisoryInfos[3])
+            print(dump)
+            f.write(dump+"\n")
 
     return advisoryInfos
 
 def crawl() : 
-    try : 
-        #crawl GHSA code
-        ghsa = driver.find_element(By.CSS_SELECTOR,'div.col-12.col-md-3.float-left.pt-3.pt-md-0 > div:nth-child(4) > div').text
+    #crawl GHSA code
+    ghsa = driver.find_element(By.CSS_SELECTOR,'div.col-12.col-md-3.float-left.pt-3.pt-md-0 > div:nth-child(4) > div').text
         
-        #crawl package info
-        packages = driver.find_elements(By.CSS_SELECTOR,'div.Box-body span.f4.color-fg-default.text-bold')
-        package = [info.text for info in packages]
+    #crawl package info
+    packages = driver.find_elements(By.CSS_SELECTOR,'div.Box-body span.f4.color-fg-default.text-bold')
+    package = [info.text for info in packages]
 
-        # crawl affected Version info
-        affectedVers = driver.find_elements(By.XPATH,'//*[@id="js-pjax-container"]/div/div[2]/div[1]/div[1]/div/div/div[2]/div')
-        affectedVer = [info.text for info in affectedVers]
+    # crawl affected Version info
+    affectedVers = driver.find_elements(By.XPATH,'//*[@id="js-pjax-container"]/div/div[2]/div[1]/div[1]/div/div/div[2]/div')
+    affectedVer = [info.text for info in affectedVers]
 
-        # crawl patched Version info
-        patchedVers = driver.find_elements(By.XPATH,'//*[@id="js-pjax-container"]/div/div[2]/div[1]/div[1]/div/div/div[3]/div')
-        patchedVer = [info.text for info in patchedVers]
-    except Exception :
-        print("크롤링하다가 에러 발생")
-        sleep(1)
-        crawl()
+    # crawl patched Version info
+    patchedVers = driver.find_elements(By.XPATH,'//*[@id="js-pjax-container"]/div/div[2]/div[1]/div[1]/div/div/div[3]/div')
+    patchedVer = [info.text for info in patchedVers]
+
+    crawl()
 
 
     advisoryInfo = [ghsa, package, affectedVer, patchedVer]
@@ -79,7 +82,7 @@ def main() :
         # total = int(driver.find_element_by_css_selector('div.Box-header.d-flex > h2 > span').text.replace(",",""))
         page, lastpage = divmod(total, max)
         page += 1
-
+        page =2
         for i in range(1,page+1) :
             if i == page : max = lastpage
             for j in range(max) : 
@@ -88,17 +91,8 @@ def main() :
                 # print(advisoryInfo)
                 advisoryDB[advisoryInfo.pop(0)] = advisoryInfo #{GHSA : [package, affected, patched]}
 
-                #save in file
-                with open('/Users/kiara/Desktop/AdvisoryDUMP.txt','a') as f :
-                    for key, value in advisoryDB.items() :
-                        dump = str(key)+" : "+str(value)
-                        f.write(dump+"\n")
-
             # gotoNextpage()  
             driver.get(f'https://github.com/advisories?page={i+1}')
-            print("page: "+str(i))
-    except Exception as e:
-        print(e+"메인에서 에러발생")
 
     finally :
         #save as dictionary dataset
@@ -118,8 +112,10 @@ if __name__ == "__main__":
         - 현재로는 patchedVers 크롤링한뒤 홀수 번째만 필터링하여 사용중
             * '22.08.30 해결: CSS Selector -> XPath 으로 변경
     2. 각 advisory페이지에 진입 -> 크롤링 -> 빠져나옴 을해서 부하가 많이 걸리는듯함.
+            * '22.08.31 해결: 크롬드라이버 사용중에 크롬 사용하면 인터럽트가 되는 현상으로 확인
     3. 페이지 로딩때문에 sleep() 사용 중. 스레드로 더 빠르게할수 있을까?
+            * '22.08.31 해결: try except 구문활용 에러발생시에만 sleep추가 부여하여 optimize
     3. selenium 4.0 버전 호환가능하도록 재작성필요
-        * '22.08.30 해결: 4.0.0 버전 & 그 미만 버전으로 분화
+            * '22.08.30 해결: 4.0.0 버전 & 그 미만 버전으로 분화
  
 #######################################################################################################   '''
