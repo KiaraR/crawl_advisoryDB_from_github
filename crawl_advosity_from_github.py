@@ -85,7 +85,7 @@ def main() :
             for j in range(max) : 
                 selector = 'div.Box.Box--responsive.js-navigation-container.js-active-navigation-container > div:nth-child('+str(j+2)+') > div > div > div > a'
                 advisoryInfo = getAdvisoryInfo(selector)
-                print(advisoryInfo)
+                # print(advisoryInfo)
                 advisoryDB[advisoryInfo.pop(0)] = advisoryInfo #{GHSA : [package, affected, patched]}
 
                 #save in file
@@ -96,8 +96,9 @@ def main() :
 
             # gotoNextpage()  
             driver.get(f'https://github.com/advisories?page={i+1}')
-    except Exception :
-        print("메인에서 에러발생")
+            print("page: "+str(i))
+    except Exception as e:
+        print(e+"메인에서 에러발생")
 
     finally :
         #save as dictionary dataset
