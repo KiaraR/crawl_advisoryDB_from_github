@@ -79,10 +79,9 @@ def main() :
         #get TotalPage count
         max = 25
         total = int(driver.find_element(By.CSS_SELECTOR,'div.Box-header.d-flex > h2 > span').text.replace(",",""))
-        # total = int(driver.find_element_by_css_selector('div.Box-header.d-flex > h2 > span').text.replace(",",""))
         page, lastpage = divmod(total, max)
         page += 1
-        page =2
+
         for i in range(1,page+1) :
             if i == page : max = lastpage
             for j in range(max) : 
