@@ -1,6 +1,11 @@
 ## introduction
 Crawler for Advorsity Data from github
 
+## environment
+OS       : MacOS(Monterey 12.5)  
+Python   : 3.10.6  
+Selenium : 4.4.3 / 2.33.0
+
 ### Notice
 - This code crawls *reviewed* advorsity only
 - If Selenium version < 4.0.0, use (<4.0.0)crawl_advosity_from_github.py instead
